@@ -15,7 +15,7 @@ def txn(date, description, amount, separate_deposit="0.00", sequence=0):
 
 
 class LibrStateMachineTests(unittest.TestCase):
-    def test_community_deposit_does_not_replenish_depleted_claim(self):
+    def test_community_deposit_does_not_replenish_reduced_claim(self):
         result = calculate_libr(
             [
                 txn("2026-01-01", "separate deposit", "100.00", "100.00", 0),
@@ -26,6 +26,19 @@ class LibrStateMachineTests(unittest.TestCase):
 
         self.assertEqual(result.final_balance, Decimal("510.00"))
         self.assertEqual(result.traceable_remainder, Decimal("10.00"))
+
+    def test_overdraft_caps_claim_and_lowest_balance_at_zero(self):
+        result = calculate_libr(
+            [
+                txn("2026-01-01", "separate deposit", "100.00", "100.00", 0),
+                txn("2026-01-02", "overdraft event", "-150.00", sequence=1),
+                txn("2026-01-03", "community deposit", "500.00", sequence=2),
+            ]
+        )
+
+        self.assertEqual(result.final_balance, Decimal("450.00"))
+        self.assertEqual(result.traceable_remainder, Decimal("0.00"))
+        self.assertEqual(result.lowest_intermediate_balance, Decimal("0.00"))
 
     def test_zero_balance_exhausts_claim(self):
         result = calculate_libr(
@@ -70,13 +83,13 @@ class LibrStateMachineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             calculate_libr(
                 [
-                Transaction(
-                    date="2026-01-01",
-                    description="bad separate deposit",
-                    amount=money("-100.00"),
-                    separate_deposit=money("100.00"),
-                    sequence=0,
-                )
+                    Transaction(
+                        date="2026-01-01",
+                        description="bad separate deposit",
+                        amount=money("-100.00"),
+                        separate_deposit=money("100.00"),
+                        sequence=0,
+                    )
                 ]
             )
 

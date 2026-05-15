@@ -1,41 +1,60 @@
 # LIBR State Machine Demo
 
-This is a small, standalone Python demo of the Lowest Intermediate Balance Rule (LIBR) modeled as a deterministic ledger state machine.
+A dependency-free Python reference implementation of the Lowest Intermediate
+Balance Rule (LIBR), modeled as a deterministic ledger state machine.
 
-It is designed as a public-safe technical artifact for discussion, testing, and feedback. It does not contain Exit Protocol application code, Django models, OCR logic, report-generation templates, customer data, private workflows, or production infrastructure.
+This repository is intentionally narrow. It demonstrates one calculation model
+using synthetic data and regression tests. It does not include Exit Protocol
+application code, OCR logic, report-generation templates, customer data, private
+workflows, or production infrastructure.
+
+## Why This Exists
+
+In commingled-account disputes, a traceable separate-property claim can be
+reduced when the account balance falls below the claimed amount. Later community
+deposits may increase the account balance, but they do not automatically restore
+the depleted separate-property claim.
+
+That behavior is easiest to reason about as a state machine:
+
+```text
+provisional_traceable = traceable_before + new_separate_deposit
+traceable_after = min(provisional_traceable, max(account_balance_after, 0))
+```
+
+The goal of this repo is to make the calculation explicit, inspectable, and
+easy to test.
 
 ## What It Demonstrates
 
-In a commingled account, a traceable separate-property claim behaves like a one-way ratchet:
-
-```text
-traceable_after = min(traceable_before, account_balance_after)
-```
-
-Later community deposits can increase the account balance, but they cannot replenish a separate-property claim after the claim has been depleted.
-
-New separate-property deposits are treated separately and can increase the traceable claim, subject to the account balance at that point in the ledger.
+- Chronological LIBR tracing over a CSV transaction ledger
+- Separate-property deposits tracked independently from community deposits
+- Claim reduction when the account balance drops below the traceable amount
+- Zero-balance and overdraft depletion behavior
+- Same-day ordering modes for statements without reliable timestamps
+- A small CLI that prints material trace events
+- Regression tests for the core edge cases
 
 ## What It Is Not
 
-This is not legal advice.
+This repository is not legal advice, expert testimony, or a court-admissibility
+claim.
 
-This is not a substitute for an attorney, forensic accountant, expert witness, or jurisdiction-specific legal analysis.
+It is not a substitute for an attorney, forensic accountant, expert witness, or
+jurisdiction-specific analysis.
 
-This is not a claim that a generated output is admissible in court.
+It is not the Exit Protocol production platform. It is a public-safe technical
+artifact for review, discussion, and edge-case feedback.
 
-This is just a transparent calculation model with synthetic data and regression tests.
-
-## Files
+## Repository Structure
 
 ```text
 libr.py                         Standalone calculator and CLI
-examples/synthetic_ledger.csv   Small synthetic commingled ledger
+examples/synthetic_ledger.csv   Synthetic commingled-account ledger
 tests/test_libr.py              Regression tests for core edge cases
-hn_post_draft.md                Draft Hacker News post built around this artifact
 ```
 
-## Run It
+## Quickstart
 
 Requires Python 3.10+ and no third-party packages.
 
@@ -69,11 +88,13 @@ Columns:
 - `date`: ISO date, `YYYY-MM-DD`
 - `description`: transaction description
 - `amount`: positive for deposits, negative for withdrawals
-- `separate_deposit`: amount of this transaction that represents new separate-property funds
+- `separate_deposit`: amount of this transaction that represents new
+  separate-property funds
 
 ## Same-Day Ambiguity
 
-Bank statements often provide dates without reliable timestamps. If a deposit and withdrawal happen on the same day, ordering can change the traceable result.
+Bank statements often provide dates without reliable timestamps. If a deposit
+and withdrawal happen on the same day, ordering can change the traceable result.
 
 The demo supports three modes:
 
@@ -81,19 +102,14 @@ The demo supports three modes:
 - `worst_case`: withdrawals before deposits within each date
 - `best_case`: deposits before withdrawals within each date
 
-This does not resolve legal uncertainty. It exposes the calculation range so a reviewer can see the effect of missing timestamp detail.
+This does not resolve legal uncertainty. It exposes the calculation range so a
+reviewer can see the effect of missing timestamp detail.
 
-## Public Repo Strategy
+## Public Scope
 
-If this folder is split into its own public repository, the recommended repo name is:
+This public repo is meant to show the deterministic core of a narrow tracing
+method. The larger Exit Protocol product adds document ingestion, evidence
+organization, review workflows, report generation, and security controls around
+similar calculation primitives.
 
-```text
-libr-state-machine-demo
-```
-
-Recommended Hacker News angle:
-
-> I found a weird legal/accounting rule that behaves like a deterministic ledger state machine. I built a tiny Python implementation with synthetic data and tests. I am looking for edge-case feedback.
-
-Avoid framing this as replacing experts, guaranteeing legal outcomes, or producing court-admissible reports.
-
+For product context, see: https://exitprotocols.com

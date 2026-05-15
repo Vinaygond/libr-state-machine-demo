@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""A tiny deterministic LIBR state-machine demo.
+"""Dependency-free LIBR state-machine reference implementation.
 
-This file is intentionally standalone and dependency-free. It is suitable for a
-small public technical artifact without exposing the larger Exit Protocol app.
+This public demo models the Lowest Intermediate Balance Rule as a small,
+deterministic ledger calculation. It intentionally excludes Exit Protocol
+application code, OCR pipelines, report templates, customer data, and private
+infrastructure.
 """
 
 from __future__ import annotations
@@ -72,7 +74,7 @@ class Result:
     def lowest_intermediate_balance(self) -> Decimal:
         if not self.steps:
             return ZERO
-        return min(step.account_balance for step in self.steps)
+        return min(max(step.account_balance, ZERO) for step in self.steps)
 
     @property
     def exhaustion_step(self) -> Step | None:
