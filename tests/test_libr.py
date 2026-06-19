@@ -114,9 +114,10 @@ class LibrStateMachineTests(unittest.TestCase):
 
         self.assertEqual(result.traceable_remainder, Decimal("0.00"))
         self.assertEqual(result.final_balance, Decimal("16635.38"))
-        self.assertEqual(result.lowest_intermediate_balance, Decimal("-15864.62"))
+        self.assertEqual(result.lowest_intermediate_balance, Decimal("0.00"))
         self.assertIsNotNone(result.exhaustion_step)
         self.assertEqual(result.exhaustion_step.date, "2026-02-07")
+        self.assertEqual(result.exhaustion_step.account_balance, Decimal("-15864.62"))
         self.assertIn("COINBASE", result.exhaustion_step.description)
 
     def test_overdraft_caps_traceable_at_zero_without_replenishment(self):
