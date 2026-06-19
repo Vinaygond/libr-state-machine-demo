@@ -4,14 +4,16 @@
 This public demo models the Lowest Intermediate Balance Rule as a small,
 deterministic ledger calculation. It intentionally excludes Exit Protocol
 application code, OCR pipelines, report templates, customer data, and private
-infrastructure.
+infrastructure. V1 single-claim replay only; multi-claim pro-rata allocation is
+out of scope for this artifact.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-from dataclasses import dataclass
+import json
+from dataclasses import asdict, dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import Iterable, Literal
@@ -197,6 +199,32 @@ def format_money(value: Decimal) -> str:
     return f"{prefix}${value:,.2f}"
 
 
+def result_to_dict(result: Result) -> dict:
+    return {
+        "ordering": result.ordering,
+        "final_balance": str(result.final_balance),
+        "traceable_remainder": str(result.traceable_remainder),
+        "lowest_intermediate_balance": str(result.lowest_intermediate_balance),
+        "exhaustion_step": (
+            {
+                "date": result.exhaustion_step.date,
+                "description": result.exhaustion_step.description,
+                "account_balance": str(result.exhaustion_step.account_balance),
+                "traceable_after": str(result.exhaustion_step.traceable_after),
+            }
+            if result.exhaustion_step
+            else None
+        ),
+        "material_steps": [
+            {
+                **{key: str(value) if isinstance(value, Decimal) else value for key, value in asdict(step).items()}
+            }
+            for step in result.steps
+            if step.event != "no traceable change"
+        ],
+    }
+
+
 def print_result(result: Result) -> None:
     print(f"ordering: {result.ordering}")
     print(f"final account balance: {format_money(result.final_balance)}")
@@ -229,10 +257,18 @@ def main() -> None:
         default="ledger",
         help="Same-day transaction ordering strategy",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit machine-readable JSON instead of a human-readable summary",
+    )
     args = parser.parse_args()
 
     result = calculate_libr(read_csv(args.csv_path), args.ordering)
-    print_result(result)
+    if args.json:
+        print(json.dumps(result_to_dict(result), indent=2))
+    else:
+        print_result(result)
 
 
 if __name__ == "__main__":

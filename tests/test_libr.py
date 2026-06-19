@@ -1,7 +1,11 @@
 import unittest
 from decimal import Decimal
+from pathlib import Path
 
-from libr import Transaction, calculate_libr, money
+from libr import Transaction, calculate_libr, money, read_csv
+
+
+FIXTURES = Path(__file__).resolve().parents[1] / "examples"
 
 
 def txn(date, description, amount, separate_deposit="0.00", sequence=0):
@@ -92,6 +96,41 @@ class LibrStateMachineTests(unittest.TestCase):
                     )
                 ]
             )
+
+    def test_minimal_dip_fixture_matches_engineering_page_story(self):
+        result = calculate_libr(read_csv(FIXTURES / "minimal_dip_ledger.csv"))
+
+        self.assertEqual(result.final_balance, Decimal("65000.00"))
+        self.assertEqual(result.traceable_remainder, Decimal("45000.00"))
+
+        salary_step = result.steps[-1]
+        self.assertEqual(salary_step.date, "2024-03-01")
+        self.assertEqual(salary_step.account_balance, Decimal("65000.00"))
+        self.assertEqual(salary_step.traceable_after, Decimal("45000.00"))
+        self.assertEqual(salary_step.event, "community deposit ignored")
+
+    def test_synthetic_fixture_reaches_overdraft_and_zero_traceable_remainder(self):
+        result = calculate_libr(read_csv(FIXTURES / "synthetic_ledger.csv"))
+
+        self.assertEqual(result.traceable_remainder, Decimal("0.00"))
+        self.assertEqual(result.final_balance, Decimal("16635.38"))
+        self.assertEqual(result.lowest_intermediate_balance, Decimal("-15864.62"))
+        self.assertIsNotNone(result.exhaustion_step)
+        self.assertEqual(result.exhaustion_step.date, "2026-02-07")
+        self.assertIn("COINBASE", result.exhaustion_step.description)
+
+    def test_overdraft_caps_traceable_at_zero_without_replenishment(self):
+        result = calculate_libr(
+            [
+                txn("2026-01-01", "separate deposit", "1000.00", "1000.00", 0),
+                txn("2026-01-02", "overdraft withdrawal", "-1500.00", sequence=1),
+                txn("2026-01-03", "community deposit", "800.00", sequence=2),
+            ]
+        )
+
+        self.assertEqual(result.final_balance, Decimal("300.00"))
+        self.assertEqual(result.traceable_remainder, Decimal("0.00"))
+        self.assertEqual(result.exhaustion_step.date, "2026-01-02")
 
 
 if __name__ == "__main__":
