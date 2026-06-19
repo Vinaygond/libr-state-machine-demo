@@ -142,6 +142,3 @@ Public product surfaces:
 > I built a tiny Python implementation with synthetic data and tests. I am
 > looking for edge-case feedback on same-day ordering, overdraft rows, and how
 > to present calculation traces for human review.
-
-Avoid framing this as replacing experts, guaranteeing legal outcomes, or
-producing court-admissible reports.
