@@ -1,0 +1,49 @@
+{
+  "ordering": "worst_case",
+  "final_balance": "65000.00",
+  "traceable_remainder": "45000.00",
+  "lowest_intermediate_balance": "5000.00",
+  "exhaustion_step": null,
+  "material_steps": [
+    {
+      "date": "2024-01-01",
+      "description": "Opening community balance",
+      "amount": "5000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "5000.00",
+      "traceable_before": "0.00",
+      "traceable_after": "0.00",
+      "event": "community deposit ignored"
+    },
+    {
+      "date": "2024-01-03",
+      "description": "Separate-property deposit",
+      "amount": "100000.00",
+      "separate_deposit": "100000.00",
+      "account_balance": "105000.00",
+      "traceable_before": "0.00",
+      "traceable_after": "100000.00",
+      "event": "separate deposit added"
+    },
+    {
+      "date": "2024-02-10",
+      "description": "Withdrawal",
+      "amount": "-60000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "45000.00",
+      "traceable_before": "100000.00",
+      "traceable_after": "45000.00",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2024-03-01",
+      "description": "Later salary deposit",
+      "amount": "20000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "65000.00",
+      "traceable_before": "45000.00",
+      "traceable_after": "45000.00",
+      "event": "community deposit ignored"
+    }
+  ]
+}

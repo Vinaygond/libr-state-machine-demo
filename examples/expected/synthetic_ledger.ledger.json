@@ -1,0 +1,154 @@
+{
+  "ordering": "ledger",
+  "final_balance": "16635.38",
+  "traceable_remainder": "0.00",
+  "lowest_intermediate_balance": "0.00",
+  "exhaustion_step": {
+    "date": "2026-02-07",
+    "description": "WIRE OUT: COINBASE PRIME - BTC TREASURY",
+    "account_balance": "-15864.62",
+    "traceable_after": "0.00"
+  },
+  "material_steps": [
+    {
+      "date": "2023-02-08",
+      "description": "INITIAL SEPARATE PROPERTY DEPOSIT",
+      "amount": "250000.00",
+      "separate_deposit": "250000.00",
+      "account_balance": "250000.00",
+      "traceable_before": "0.00",
+      "traceable_after": "250000.00",
+      "event": "separate deposit added"
+    },
+    {
+      "date": "2023-02-10",
+      "description": "POS DEBIT: DoorDash",
+      "amount": "-106.72",
+      "separate_deposit": "0.00",
+      "account_balance": "249893.28",
+      "traceable_before": "250000.00",
+      "traceable_after": "249893.28",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2023-02-13",
+      "description": "POS DEBIT: Carbon Health",
+      "amount": "-708.90",
+      "separate_deposit": "0.00",
+      "account_balance": "249184.38",
+      "traceable_before": "249893.28",
+      "traceable_after": "249184.38",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2023-02-15",
+      "description": "POS DEBIT: Zillow Premier",
+      "amount": "-1335.88",
+      "separate_deposit": "0.00",
+      "account_balance": "247848.50",
+      "traceable_before": "249184.38",
+      "traceable_after": "247848.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2023-03-01",
+      "description": "ACH DEP: TECH CORP SALARY",
+      "amount": "12500.00",
+      "separate_deposit": "0.00",
+      "account_balance": "260348.50",
+      "traceable_before": "247848.50",
+      "traceable_after": "247848.50",
+      "event": "community deposit ignored"
+    },
+    {
+      "date": "2023-04-15",
+      "description": "WIRE OUT: STERLING HOLDINGS LLC - CAP CALL",
+      "amount": "-25000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "231148.50",
+      "traceable_before": "247848.50",
+      "traceable_after": "231148.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2024-04-15",
+      "description": "WIRE OUT: STERLING HOLDINGS LLC - CAP CALL",
+      "amount": "-25000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "206148.50",
+      "traceable_before": "231148.50",
+      "traceable_after": "206148.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2024-08-01",
+      "description": "ONLINE PMT: IRS FORM 1040 Q2 ESTIMATED",
+      "amount": "-75000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "131148.50",
+      "traceable_before": "206148.50",
+      "traceable_after": "131148.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2025-09-28",
+      "description": "POS DEBIT: FOUR SEASONS PARIS",
+      "amount": "-45000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "86148.50",
+      "traceable_before": "131148.50",
+      "traceable_after": "86148.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2026-01-15",
+      "description": "WIRE OUT: STERLING HOLDINGS LLC - CAP CALL",
+      "amount": "-25000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "61148.50",
+      "traceable_before": "86148.50",
+      "traceable_after": "61148.50",
+      "event": "claim reduced"
+    },
+    {
+      "date": "2026-02-01",
+      "description": "ACH DEP: TECH CORP SALARY",
+      "amount": "12500.00",
+      "separate_deposit": "0.00",
+      "account_balance": "73648.50",
+      "traceable_before": "61148.50",
+      "traceable_after": "61148.50",
+      "event": "community deposit ignored"
+    },
+    {
+      "date": "2026-02-07",
+      "description": "WIRE OUT: COINBASE PRIME - BTC TREASURY",
+      "amount": "-85000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "-15864.62",
+      "traceable_before": "61148.50",
+      "traceable_after": "0.00",
+      "event": "claim exhausted"
+    },
+    {
+      "date": "2026-02-10",
+      "description": "ACH DEP: TECH CORP SALARY",
+      "amount": "12500.00",
+      "separate_deposit": "0.00",
+      "account_balance": "-3364.62",
+      "traceable_before": "0.00",
+      "traceable_after": "0.00",
+      "event": "community deposit ignored"
+    },
+    {
+      "date": "2026-02-15",
+      "description": "TAX REFUND: STATE FRANCHISE TAX BOARD",
+      "amount": "20000.00",
+      "separate_deposit": "0.00",
+      "account_balance": "16635.38",
+      "traceable_before": "0.00",
+      "traceable_after": "0.00",
+      "event": "community deposit ignored"
+    }
+  ]
+}

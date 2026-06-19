@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Iterable, Literal
 
 
+VERSION = "1.1.0"
 OrderingMode = Literal["ledger", "worst_case", "best_case"]
 CENT = Decimal("0.01")
 ZERO = Decimal("0.00")
@@ -249,8 +250,16 @@ def print_result(result: Result) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run a deterministic LIBR calculation.")
+    parser = argparse.ArgumentParser(
+        description="Run a deterministic LIBR calculation.",
+        epilog="Synthetic demo artifact for technical review. Not legal advice.",
+    )
     parser.add_argument("csv_path", type=Path, help="CSV ledger path")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"libr-state-machine-demo {VERSION}",
+    )
     parser.add_argument(
         "--ordering",
         choices=("ledger", "worst_case", "best_case"),

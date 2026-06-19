@@ -1,99 +1,110 @@
 # LIBR State Machine Demo
 
-A dependency-free Python reference implementation of the Lowest Intermediate
-Balance Rule (LIBR), modeled as a deterministic ledger state machine.
+[![test](https://github.com/Vinaygond/libr-state-machine-demo/actions/workflows/test.yml/badge.svg)](https://github.com/Vinaygond/libr-state-machine-demo/actions/workflows/test.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![dependencies](https://img.shields.io/badge/dependencies-none-success.svg)](#quickstart)
+
+A dependency-free Python reference implementation of the **Lowest Intermediate
+Balance Rule (LIBR)**, modeled as a deterministic ledger state machine.
+
+Public companion artifact for [Exit Protocol](https://exitprotocols.com/) ·
+[Engineering note](https://exitprotocols.com/engineering/libr-state-machine/) ·
+[LIBR guide](https://exitprotocols.com/libr/) ·
+[Sample workpaper](https://exitprotocols.com/sample-report/)
+
+## Why reviewers trust this artifact
+
+| Signal | What it means |
+|---|---|
+| **Zero dependencies** | No hidden packages; the full calculator is in `libr.py` |
+| **Regression tests** | Core edge cases encoded as `unittest` coverage |
+| **Golden CLI outputs** | `examples/expected/*.json` for reproducible machine checks |
+| **CI on 3.10–3.12** | Same tests run on every push |
+| **Synthetic fixtures only** | No customer data, no private workflows |
+| **Explicit boundaries** | See [DISCLAIMER.md](DISCLAIMER.md) and [VALIDATION.md](VALIDATION.md) |
 
 This repository is intentionally narrow. It demonstrates one calculation model
-using synthetic data and regression tests. It does not include Exit Protocol
-application code, OCR logic, report-generation templates, customer data, private
-workflows, or production infrastructure.
+for technical inspection — not the full Exit Protocol application.
 
-It is the public companion artifact for [Exit Protocol](https://exitprotocols.com/)'s engineering note on [LIBR as a deterministic ledger state machine](https://exitprotocols.com/engineering/libr-state-machine/).
-
-## Why This Exists
-
-In commingled-account disputes, a traceable separate-property claim can be
-reduced when the account balance falls below the claimed amount. Later community
-deposits may increase the account balance, but they do not automatically restore
-the depleted separate-property claim.
-
-That behavior is easiest to reason about as a state machine:
+## State transition
 
 ```text
 provisional_traceable = traceable_before + new_separate_deposit
 traceable_after = min(provisional_traceable, max(account_balance_after, 0))
 ```
 
-The goal of this repo is to make the calculation explicit, inspectable, and
-easy to test.
+Later community deposits may raise the account balance, but they do not
+automatically restore a separate-property claim after a dip has reduced it.
 
-## What It Demonstrates
+```mermaid
+stateDiagram-v2
+    [*] --> Baseline
+    Baseline --> ClaimOpen: separate-property deposit
+    ClaimOpen --> Replay: chronological replay
+    Replay --> DipDetected: withdrawal below trace level
+    DipDetected --> TraceReduced: cap traceable balance
+    TraceReduced --> Replay: continue replay
+    Replay --> LaterDeposit: later community deposit
+    LaterDeposit --> HoldTrace: account rises, trace holds
+    HoldTrace --> Replay
+```
 
-- Chronological LIBR tracing over a CSV transaction ledger
-- Separate-property deposits tracked independently from community deposits
-- Claim reduction when the account balance drops below the traceable amount
-- Zero-balance and overdraft depletion behavior
-- Same-day ordering modes for statements without reliable timestamps
-- A small CLI that prints material trace events or JSON output
-- Regression tests for the core edge cases
+## Expected outputs
 
-## Scope Boundary
+| Fixture | Ordering | Final balance | Traceable remainder | Notes |
+|---|---|---:|---:|---|
+| `examples/minimal_dip_ledger.csv` | `ledger` | `$65,000.00` | `$45,000.00` | Dip-and-hold story from the engineering page |
+| `examples/synthetic_ledger.csv` | `ledger` | `$16,635.38` | `$0.00` | Exhaustion on `2026-02-07` COINBASE row |
+| `examples/minimal_dip_ledger.csv` | `worst_case` | same as ledger | may differ on same-day rows | Shows ordering sensitivity |
 
-- **V1 single-claim replay only** — one traceable claim path through one ordered ledger.
-- **Multi-claim pro-rata allocation** exists in the private Exit Protocol product and requires separate review; it is not implemented here.
-- **Synthetic fixtures only** — for technical inspection and regression testing.
+Verify locally:
 
-## What It Is Not
+```bash
+python -m unittest discover -s tests -v
+python libr.py examples/minimal_dip_ledger.csv
+python libr.py examples/synthetic_ledger.csv
+python libr.py examples/minimal_dip_ledger.csv --json
+```
 
-This repository is not legal advice, expert testimony, or a court-admissibility
-claim.
+## Scope boundary
 
-It is not a substitute for an attorney, forensic accountant, expert witness, or
-jurisdiction-specific analysis.
+- **V1 single-claim replay only**
+- **Multi-claim pro-rata allocation** is out of scope here
+- **Not legal advice**, not expert testimony, not a court-filing or admissibility claim
+- **Synthetic fixtures only**
 
-It is not the Exit Protocol production platform. It is a public-safe technical
-artifact for review, discussion, and edge-case feedback.
-
-## Repository Structure
+## Repository structure
 
 ```text
-libr.py                              Standalone calculator and CLI
-examples/synthetic_ledger.csv        Longer SIM-style synthetic commingled ledger
-examples/minimal_dip_ledger.csv      Small dip-and-hold fixture used on the engineering page
-tests/test_libr.py                   Regression tests for core edge cases
-.github/workflows/test.yml            CI regression runner
-LICENSE                              MIT license
+libr.py                              Calculator + CLI (single source of truth)
+examples/minimal_dip_ledger.csv      Small dip-and-hold fixture
+examples/synthetic_ledger.csv        Longer synthetic commingled ledger
+examples/expected/*.json             Golden CLI outputs for reproducibility
+tests/test_libr.py                   Behavioral regression tests
+tests/test_golden_fixtures.py        Golden-output regression tests
+VALIDATION.md                        Reviewer matrix and invariants
+DISCLAIMER.md                        Professional boundary statement
+CHANGELOG.md                         Public artifact version history
+CITATION.cff                         Citation metadata for diligence / research
+.github/workflows/test.yml           CI runner
+LICENSE                              MIT
 ```
 
 ## Quickstart
 
-Requires Python 3.10+ and no third-party packages.
+Requires Python 3.10+.
 
 ```bash
-python libr.py examples/synthetic_ledger.csv
+git clone https://github.com/Vinaygond/libr-state-machine-demo.git
+cd libr-state-machine-demo
+python -m unittest discover -s tests -v
 python libr.py examples/minimal_dip_ledger.csv
-```
-
-Try same-day ordering modes:
-
-```bash
 python libr.py examples/synthetic_ledger.csv --ordering worst_case
-python libr.py examples/synthetic_ledger.csv --ordering best_case
+python libr.py --version examples/minimal_dip_ledger.csv
 ```
 
-Emit JSON for scripts or diligence checks:
-
-```bash
-python libr.py examples/minimal_dip_ledger.csv --json
-```
-
-Run tests:
-
-```bash
-python -m unittest discover -s tests
-```
-
-## CSV Format
+## CSV format
 
 ```csv
 date,description,amount,separate_deposit
@@ -101,44 +112,44 @@ date,description,amount,separate_deposit
 2023-02-10,POS DEBIT: DoorDash,-106.72,0.00
 ```
 
-Columns:
+| Column | Meaning |
+|---|---|
+| `date` | ISO date `YYYY-MM-DD` |
+| `description` | Transaction description |
+| `amount` | Positive deposit, negative withdrawal |
+| `separate_deposit` | Separate-property funds introduced on this row |
 
-- `date`: ISO date, `YYYY-MM-DD`
-- `description`: transaction description
-- `amount`: positive for deposits, negative for withdrawals
-- `separate_deposit`: amount of this transaction that represents new
-  separate-property funds
+## Same-day ambiguity
 
-## Same-Day Ambiguity
-
-Bank statements often provide dates without reliable timestamps. If a deposit
-and withdrawal happen on the same day, ordering can change the traceable result.
-
-| Demo mode | Meaning | Exit Protocol strategy alias |
+| Demo mode | Meaning | Exit Protocol alias |
 |---|---|---|
-| `ledger` | preserve CSV order within each date | neutral |
-| `worst_case` | withdrawals before deposits within each date | minimize |
-| `best_case` | deposits before withdrawals within each date | maximize |
+| `ledger` | Preserve CSV order within each date | neutral |
+| `worst_case` | Withdrawals before deposits on same day | minimize |
+| `best_case` | Deposits before withdrawals on same day | maximize |
 
-This does not resolve legal uncertainty. It exposes the calculation range so a
-reviewer can see the effect of missing timestamp detail.
+This exposes calculation range; it does not resolve legal timestamp uncertainty.
 
-## Relationship to Exit Protocol
+## Diligence workflow
 
-Exit Protocol uses deterministic LIBR replay inside attorney-reviewable V1
-workpapers. This repository isolates the calculation model so developers,
-forensic accountants, and diligence reviewers can inspect the state machine
-directly.
+1. Read [VALIDATION.md](VALIDATION.md) for the invariant matrix.
+2. Run the test suite and inspect golden outputs.
+3. Replay `minimal_dip_ledger.csv` to see non-replenishment after a dip.
+4. Replay `synthetic_ledger.csv` to see long-horizon exhaustion behavior.
+5. Compare Exit Protocol's public engineering note and sample workpaper for product context.
 
-Public product surfaces:
+## Contributing feedback
 
-- Engineering note: https://exitprotocols.com/engineering/libr-state-machine/
-- LIBR guide: https://exitprotocols.com/libr/
-- Synthetic sample workpaper: https://exitprotocols.com/sample-report/
+Use [Edge case feedback](.github/ISSUE_TEMPLATE/edge_case_feedback.yml) for:
 
-## Public Discussion Angle
+- same-day ordering ambiguity
+- overdraft rows
+- multiple separate-property deposits
+- better ways to present calculation traces for human review
 
-> I found a tracing rule that behaves like a deterministic ledger state machine.
-> I built a tiny Python implementation with synthetic data and tests. I am
-> looking for edge-case feedback on same-day ordering, overdraft rows, and how
-> to present calculation traces for human review.
+## Citation
+
+If you reference this artifact in diligence or research materials, see [CITATION.cff](CITATION.cff).
+
+## License
+
+MIT — see [LICENSE](LICENSE).

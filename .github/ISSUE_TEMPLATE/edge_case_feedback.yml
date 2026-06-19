@@ -1,0 +1,41 @@
+name: Edge case feedback
+description: Report a calculation edge case, ordering ambiguity, or review-trace suggestion
+title: "[edge case]: "
+labels: ["edge-case", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reviewing the public LIBR artifact. This form is for technical
+        calculation feedback only — not legal advice requests or product support.
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario
+      description: Describe the ledger pattern or ambiguity you are testing.
+      placeholder: Same-day deposit and withdrawal without timestamps...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should a reviewer see in the trace?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: CSV rows, ordering mode, and command used.
+      placeholder: |
+        python libr.py examples/minimal_dip_ledger.csv --ordering worst_case
+    validations:
+      required: false
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary acknowledgment
+      options:
+        - label: I understand this repo is a public technical artifact, not legal advice or a court-admissibility claim.
+          required: true

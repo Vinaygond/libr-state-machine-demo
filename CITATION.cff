@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: LIBR State Machine Demo
+message: >-
+  If you use this software in research, diligence review, or technical
+  discussion, please cite it as below.
+type: software
+authors:
+  - name: Exit Protocol
+repository-code: 'https://github.com/Vinaygond/libr-state-machine-demo'
+url: 'https://exitprotocols.com/engineering/libr-state-machine/'
+abstract: >-
+  A dependency-free Python reference implementation of Lowest Intermediate
+  Balance Rule tracing modeled as a deterministic ledger state machine with
+  synthetic fixtures and regression tests.
+keywords:
+  - libr
+  - forensic-accounting
+  - commingled-account
+  - deterministic-replay
+  - state-machine
+license: MIT
+version: 1.1.0
+date-released: '2026-06-19'
